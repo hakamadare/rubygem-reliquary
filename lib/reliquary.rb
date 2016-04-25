@@ -1,5 +1,6 @@
 require "reliquary/version"
 
 module Reliquary
-  # Your code goes here...
+  autoload :API, 'reliquary/api'
+  autoload :Client, 'reliquary/client'
 end
