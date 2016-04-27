@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["huff@vecna.org"]
 
   spec.summary       = %q{Client for New Relic API v2.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.description   = %q{The official New Relic Ruby gem only supports API v1.}
+  spec.homepage      = "https://github.com/hakamadare/rubygem-reliquary"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
