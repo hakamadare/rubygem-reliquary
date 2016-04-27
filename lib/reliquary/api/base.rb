@@ -2,6 +2,7 @@
 # @title Reliquary::API::Base
 # @author Steve Huff
 #
+require 'chronic'
 
 module Reliquary
   module API
@@ -94,6 +95,32 @@ module Reliquary
 
       protected
 
+      # @!method retrieve_id
+      # Retrieve New Relic ID from a params hash
+      # @param [Hash] params Hash of parameters
+      # @param [Symbol] id_key Hash key associated with ID value (default `:id`)
+      # @return [Integer] New Relic ID
+      def retrieve_id(params, id_key = :id)
+        begin
+          id_val = params.fetch(id_key.to_sym)
+
+          if id_val.nil?
+            raise "you must supply a New Relic application ID"
+          else
+            id_val.to_i
+          end
+
+        rescue NoMethodError => e
+          raise "unable to convert '#{id_val.inspect}' to integer: #{e.message}"
+
+        rescue KeyError => e
+          raise "the params hash has no key called '#{id_key}': #{e.message}"
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
       # @!method process_request_params
       # Iterate over an API method's parameters, building up a hash of URI
       #   query parameters that will be added to the REST API query.
@@ -159,14 +186,48 @@ module Reliquary
             param_key = this_requests_params.fetch(:key, method_param.to_s)
 
             param_transform = this_requests_params.fetch(:transform, lambda {|x| x.to_s})
+            param_munge = this_requests_params.fetch(:munge, lambda {|x| x})
 
-            request_params.store(param_key.to_s, param_transform.call(param_value))
+            request_params.store(param_key.to_s, param_transform.call(param_munge.call(param_value)))
 
             request_params
           end
 
         rescue KeyError => e
           raise "unable to find filter options for API method '#{api_method}': #{e.message}"
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
+      # @! method parse_time
+      # Parses and validates a time parameter (accepts ISO8601 format and some
+      # "natural language" formats), converting to UTC
+      # @param [String] time String to be parsed
+      # @return [Time] parsed Time object
+      def self.parse_time(time)
+        begin
+          Chronic.parse(time).utc
+
+        rescue NoMethodError => e
+          raise "unable to parse '#{time}' as a time: #{e.message}"
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
+      # @! method format_time
+      # Converts a Time object to an ISO8601-formatted String, forcing UTC
+      # @param [Time] time Time object to be formatted
+      # @return [String] formatted String
+      def self.format_time(time)
+        begin
+          time.utc.strftime('%FT%T') + '+00:00'
+
+        rescue NoMethodError => e
+          raise "unable to parse '#{time}' as a time: #{e.message}"
 
         rescue StandardError => e
           raise e

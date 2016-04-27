@@ -45,8 +45,14 @@ module Reliquary
             :key        => 'values[]',
             :transform  => lambda {|x| x.join(',')},
           },
-          :from         => {},
-          :to           => {},
+          :from         => {
+            :munge      => lambda {|x| self.parse_time(x)},
+            :transform  => lambda {|x| self.format_time(x)},
+          },
+          :to           => {
+            :munge      => lambda {|x| self.parse_time(x)},
+            :transform  => lambda {|x| self.format_time(x)},
+          },
           :period       => {
             :transform  => lambda {|x| x.to_i},
           },
@@ -85,9 +91,7 @@ module Reliquary
       # @option params [Integer] :id New Relic application ID
       def show(params = {})
         begin
-          id = params.fetch(:id).to_i
-
-          raise "you must supply a New Relic application ID" if id.nil?
+          id = retrieve_id(params)
 
           # HTTP method is the default GET
           # override the URI fragment
@@ -106,9 +110,7 @@ module Reliquary
       # @option params [Integer] :id New Relic application ID
       def metric_names(params = {})
         begin
-          id = params.fetch(:id).to_i
-
-          raise "you must supply a New Relic application ID" if id.nil?
+          id = retrieve_id(params)
 
           # HTTP method is the default GET
           # override the URI fragment
@@ -134,9 +136,7 @@ module Reliquary
       # @option params [Boolean] :raw Return unformatted data
       def metric_data(params = {})
         begin
-          id = params.fetch(:id).to_i
-
-          raise "you must supply a New Relic application ID" if id.nil?
+          id = retrieve_id(params)
 
           names_param = params.fetch(:names).collect {|x| x.to_s}.join("\n")
 
@@ -147,6 +147,18 @@ module Reliquary
           api_params = { :uri_fragment => "applications/#{id}/metrics/data.json" }
 
           execute(api_params, {:params => process_request_params(__method__, params).merge({'names[]' => names_param})})
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
+      # @!method update
+      # Update certain parameters of an application
+      # @param [Hash] params parameters for update
+      def put(params = {})
+        begin
+          id = retrieve_id(params)
 
         rescue StandardError => e
           raise e
