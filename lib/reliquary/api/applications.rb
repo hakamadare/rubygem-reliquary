@@ -15,24 +15,25 @@ module Reliquary
 
       # How to parameterize queries against API endpoint
       METHOD_PARAMS = {
-        :list       => {
-          :app_name => {
-            :key => 'filter[name]',
+        :list          => {
+          :app_name    => {
+            :key       => 'filter[name]',
           },
-          :app_ids  => {
-            :key => 'filter[ids]',
+          :app_ids     => {
+            :key       => 'filter[ids]',
             :transform => lambda {|x| x.join(',')},
           },
-          :app_host => {
-            :key => 'filter[host]',
+          :app_host    => {
+            :key       => 'filter[host]',
           },
-          :app_lang => {
-            :key => 'filter[language]',
+          :app_lang    => {
+            :key       => 'filter[language]',
           },
-          :page => {
-            :key => 'page',
+          :page        => {
+            :key       => 'page',
           },
         },
+        :show          => {},
       }
 
       # @!method list
@@ -55,11 +56,21 @@ module Reliquary
         end
       end
 
-      private
-
-      def filter_param(query_params,k,v)
+      # @!method show
+      # Show summary for a single application
+      # @param [Hash] params parameters for listing
+      # @option params [Integer] :id New Relic application ID
+      def show(params = {})
         begin
-          query_params.store(k.to_s,v.to_s) unless v.nil?
+          id = params.fetch(:id).to_i
+
+          raise "you must supply a New Relic application ID" if id.nil?
+
+          # HTTP method is the default GET
+          # override the URI fragment
+          api_params = { :uri_fragment => "applications/#{id}.json" }
+
+          execute(api_params, {:params => process_request_params(__method__, params)})
 
         rescue StandardError => e
           raise e
