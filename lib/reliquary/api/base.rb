@@ -155,7 +155,8 @@ module Reliquary
           if param_value.nil?
             request_params
           else
-            param_key = this_requests_params.fetch(:key)
+            # default param key is the method param, stringified
+            param_key = this_requests_params.fetch(:key, method_param.to_s)
 
             param_transform = this_requests_params.fetch(:transform, lambda {|x| x.to_s})
 
