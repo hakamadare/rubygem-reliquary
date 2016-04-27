@@ -18,17 +18,17 @@ module Reliquary
       #   require additional parameters to build the URI fragment.
       METHOD_PARAMS = {
         :list           => {
-          :app_name     => {
+          :name         => {
             :key        => 'filter[name]',
           },
-          :app_ids      => {
+          :ids          => {
             :key        => 'filter[ids]',
             :transform  => lambda {|x| x.join(',')},
           },
-          :app_host     => {
+          :host         => {
             :key        => 'filter[host]',
           },
-          :app_lang     => {
+          :lang         => {
             :key        => 'filter[language]',
           },
           :page         => {},
@@ -63,17 +63,17 @@ module Reliquary
             :transform  => lambda {|x| x ? 'true' : 'false'},
           },
         },
-        :update => {},
-        :delete => {},
+        :update         => {},
+        :delete         => {},
       }
 
       # @!method list
       # List applications, optionally filtering by name or ID
       # @param [Hash] params parameters for listing
-      # @option [String] :app_name New Relic application name to select
-      # @option [Array<String>] :app_ids New Relic application IDs to select
-      # @option [String] :app_host New Relic application host to select
-      # @option [String] :app_lang New Relic application language to select
+      # @option [String] :name New Relic application name to select
+      # @option [Array<String>] :ids New Relic application IDs to select
+      # @option [String] :host New Relic application host to select
+      # @option [String] :lang New Relic application language to select
       #
       def list(params = {})
         begin
