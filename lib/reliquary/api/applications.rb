@@ -14,6 +14,8 @@ module Reliquary
       URI_METHOD = :get
 
       # How to parameterize queries against API endpoint
+      # These are for parameters to be added to the query; some endpoints
+      #   require additional parameters to build the URI fragment.
       METHOD_PARAMS = {
         :list           => {
           :app_name     => {
@@ -35,7 +37,26 @@ module Reliquary
         :metric_names   => {
           :name         => {},
           :page         => {},
-        }
+        },
+        :metric_data    => {
+          :name         => {},
+          :page         => {},
+          :values       => {
+            :key        => 'values[]',
+            :transform  => lambda {|x| x.join(',')},
+          },
+          :from         => {},
+          :to           => {},
+          :period       => {
+            :transform  => lambda {|x| x.to_i},
+          },
+          :summarize    => {
+            :transform  => lambda {|x| x ? 'true' : 'false'},
+          },
+          :raw          => {
+            :transform  => lambda {|x| x ? 'true' : 'false'},
+          },
+        },
       }
 
       # @!method list
@@ -94,6 +115,38 @@ module Reliquary
           api_params = { :uri_fragment => "applications/#{id}/metrics.json" }
 
           execute(api_params, {:params => process_request_params(__method__, params)})
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
+      # @!method metric_data
+      # List metric date for a single application
+      # @param [Hash] params parameters for listing
+      # @option params [Integer] :id New Relic application ID
+      # @option params [Array<String>] :names Names of metrics to retrieve
+      # @option params [Array<String>] :values Names of metric values to retrieve
+      # @option params [Time] :from Retrieve metrics after this time
+      # @option params [Time] :to Retrieve metrics before this time
+      # @option params [Time] :period Period of timeslices in seconds
+      # @option params [Boolean] :summarize Return summarized data or all the samples
+      # @option params [Boolean] :raw Return unformatted data
+      def metric_data(params = {})
+        begin
+          id = params.fetch(:id).to_i
+
+          raise "you must supply a New Relic application ID" if id.nil?
+
+          names_param = params.fetch(:names).collect {|x| x.to_s}.join("\n")
+
+          raise "you must supply one or more New Relic metric names" if names_param.nil?
+
+          # HTTP method is the default GET
+          # override the URI fragment
+          api_params = { :uri_fragment => "applications/#{id}/metrics/data.json" }
+
+          execute(api_params, {:params => process_request_params(__method__, params).merge({'names[]' => names_param})})
 
         rescue StandardError => e
           raise e
