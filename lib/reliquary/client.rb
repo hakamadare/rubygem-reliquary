@@ -10,9 +10,9 @@ require 'uri'
 module Reliquary
   class Client
 
-    HTTP_METHODS = ['get','put','post','delete','head']
+    HTTP_METHODS = ['get','put','post','patch','delete','head']
 
-    # @!attribute [r] api_key 
+    # @!attribute [r] api_key
     #   @return [String] a [New Relic REST API](https://rpm.newrelic.com/api/explore) key
     attr_reader :api_key
 
@@ -54,7 +54,7 @@ module Reliquary
 
     # @!method method_missing(method_name, *args, &block)
     #   Delegate HTTP method calls to RestClient::Resource
-    #   
+    #
     #   @param method_name [Symbol] name of method (must be a member of
     #     {Reliquary::Client::HTTP_METHODS})
     #   @param args [Array] additional method params

@@ -63,6 +63,8 @@ module Reliquary
             :transform  => lambda {|x| x ? 'true' : 'false'},
           },
         },
+        :update => {},
+        :delete => {},
       }
 
       # @!method list
@@ -156,9 +158,43 @@ module Reliquary
       # @!method update
       # Update certain parameters of an application
       # @param [Hash] params parameters for update
-      def put(params = {})
+      def update(params = {})
         begin
           id = retrieve_id(params)
+
+          raise "not implemented yet"
+
+          # FIXME build the JSON payload
+
+          # HTTP method is PUT
+          # override the URI fragment
+          api_params = {
+            :uri_method => :put,
+            :uri_fragment => "applications/#{id}.json",
+          }
+
+          execute(api_params, {:params => process_request_params(__method__, params)})
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
+      # @!method delete
+      # Delete an application and all data
+      # @param [Hash] params parameters for delete
+      def delete(params = {})
+        begin
+          id = retrieve_id(params)
+
+          # HTTP method is PUT
+          # override the URI fragment
+          api_params = {
+            :uri_method => :delete,
+            :uri_fragment => "applications/#{id}.json",
+          }
+
+          execute(api_params, {:params => process_request_params(__method__, params)})
 
         rescue StandardError => e
           raise e
