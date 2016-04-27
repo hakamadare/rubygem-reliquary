@@ -28,11 +28,12 @@ module Reliquary
           },
           :app_lang => {
             :key => 'filter[language]',
-          }
+          },
+          :page => {
+            :key => 'page',
+          },
         },
       }
-
-      FILTER_OPTIONS = METHOD_PARAMS
 
       # @!method list
       # List applications, optionally filtering by name or ID
@@ -44,17 +45,10 @@ module Reliquary
       #
       def list(params = {})
         begin
+          # this is the "default" Applications method, no overrides
           api_params = {}
 
-          api_method = __method__
-
-          request_params = {}
-          request_params = build_request_params(request_params: request_params, method_param: :app_name, param_value: params[:app_name], api_method: api_method)
-          request_params = build_request_params(request_params: request_params, method_param: :app_ids, param_value: params[:app_ids], api_method: api_method)
-          request_params = build_request_params(request_params: request_params, method_param: :app_host, param_value: params[:app_host], api_method: api_method)
-          request_params = build_request_params(request_params: request_params, method_param: :app_lang, param_value: params[:app_lang], api_method: api_method)
-
-          execute(api_params, {:params => request_params})
+          execute(api_params, {:params => process_request_params(__method__, params)})
 
         rescue StandardError => e
           raise e

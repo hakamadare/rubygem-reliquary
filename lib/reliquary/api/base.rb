@@ -71,7 +71,7 @@ module Reliquary
         end
       end
 
-      # @!method query_params
+      # @!method method_params
       # Return the data structure describing the parameters for modifying a
       #   particular API method's queries
       # @param [Symbol] method_name API method
@@ -94,6 +94,30 @@ module Reliquary
 
       protected
 
+      # @!method process_request_params
+      # Iterate over an API method's parameters, building up a hash of URI
+      #   query parameters that will be added to the REST API query.
+      # @param [Symbol] api_method The REST API method that is being called
+      # @param [Hash] query_params The modifications to be made to this
+      #   particular REST API request
+      # @return [Hash] parameters to be passed to execute() method
+      def process_request_params(api_method, query_params)
+        begin
+          this_methods_params = self.class.method_params(api_method.to_sym)
+
+          request_params = {}
+
+          this_methods_params.keys.each do |k|
+            request_params = build_request_params(request_params: request_params, method_param: k.to_sym, param_value: query_params[k.to_sym], method_params: this_methods_params)
+          end
+
+          request_params
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
       # @!method build_request_params
       # API requests optionally take parameters that modify their behavior;
       #   calling this method builds up a hash of the parameters that will be
@@ -101,9 +125,10 @@ module Reliquary
       #   into the literal strings that will be appended to the HTTP request.
       # @param [Hash] params Parameters for this method
       # @option params [Hash] :request_params Accumulated API request parameters
-      # @option params [Symbol] :filter_param
-      # @option params [Symbol] :filter_value
-      # @option params [Symbol] :api_method
+      # @option params [Symbol] :method_param
+      # @option params [Symbol] :param_value
+      # @option params [Symbol] :method_params
+      # @return [Hash] (see :request_params)
       def build_request_params(params)
 
         begin
@@ -122,17 +147,17 @@ module Reliquary
           # by language type", this value specifies the language type)
           param_value = params.fetch(:param_value)
 
-          # this is a Symbol representing the REST API method that will be queried
-          api_method = params.fetch(:api_method)
+          # this is a Hash specifying the API parameter being built
+          method_params = params.fetch(:method_params)
 
-          method_params = self.class.method_params(api_method.to_sym).fetch(method_param)
+          this_requests_params = method_params.fetch(method_param)
 
           if param_value.nil?
             request_params
           else
-            param_key = method_params.fetch(:key)
+            param_key = this_requests_params.fetch(:key)
 
-            param_transform = method_params.fetch(:transform, lambda {|x| x.to_s})
+            param_transform = this_requests_params.fetch(:transform, lambda {|x| x.to_s})
 
             request_params.store(param_key.to_s, param_transform.call(param_value))
 
