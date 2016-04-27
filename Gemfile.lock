@@ -1,11 +1,11 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    awesome_print (1.6.1)
     binding.repl (3.0.0)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     bond (0.5.1)
-    byebug (8.2.4)
     cd (1.0.1)
     chronic (0.10.2)
     clipboard (1.1.0)
@@ -98,10 +98,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print (~> 1.6)
   binding_of_caller (~> 0.7)
   bond (~> 0.5)
   bundler (~> 1.11)
-  byebug (~> 8)
   chronic (~> 0.10)
   dotenv (~> 2)
   irbtools

@@ -9,10 +9,10 @@ group :production do
 end
 
 group :development,:test do
+  gem "awesome_print", "~> 1.6"
   gem "bond", "~> 0.5"
   gem "binding_of_caller", "~> 0.7"
   gem "bundler", "~> 1.11"
-  gem "byebug", "~> 8"
   gem "dotenv", "~> 2"
   gem "irbtools", require: "irbtools/binding"
   gem "rake", "~> 10.0"

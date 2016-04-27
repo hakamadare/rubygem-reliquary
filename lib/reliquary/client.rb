@@ -45,7 +45,8 @@ module Reliquary
     #   @return [Object] Ruby object representing JSON-formatted string
     def parse(json)
       begin
-        MultiJson.load(json, :symbolize_keys => true)
+        # strip off some layers of nonsense added by Oj
+        MultiJson.load(json, :symbolize_keys => true).values[0]
 
       rescue StandardError => e
         raise e

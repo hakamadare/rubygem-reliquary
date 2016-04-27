@@ -62,6 +62,8 @@ module Reliquary
 
           resp = self.client[uri_fragment].send(uri_method, *args, &block)
 
+          # FIXME check HTTP response code here
+
           self.client.parse(resp)
 
         rescue MultiJson::ParseError => e
