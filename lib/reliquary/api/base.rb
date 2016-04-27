@@ -12,10 +12,6 @@ module Reliquary
       #   @return [Reliquary::Client] the API client to be used for requests
       attr_reader :client
 
-      # @!attribute [r] filter_options
-      #   @return [Hash] options for filtering API requests
-      attr_reader :filter_options
-
       # @!attribute [r] uri_fragment
       #   @return [String] URI fragment defining the API endpoint
       attr_reader :uri_fragment
@@ -28,7 +24,6 @@ module Reliquary
       # Constructor method for base API component
       # @param [Hash] params parameters for component
       # @option params [Reliquary::Client] :client (see client)
-      # @option params [Hash] :filter_options (see filter_options)
       # @option params [String] :uri_fragment (see uri_fragment)
       # @option params [String] :uri_method (see uri_method)
       def initialize(params = {})
@@ -36,10 +31,6 @@ module Reliquary
           client = params[:client]
           client = Reliquary::Client.new unless client.kind_of? Reliquary::Client
           @client = client
-
-          filter_options = params[:filter_options]
-          filter_options = self.class::FILTER_OPTIONS unless filter_options.kind_of? Hash
-          @filter_options = filter_options
 
           uri_fragment = params[:uri_fragment]
           uri_fragment = self.class::URI_FRAGMENT unless uri_fragment.kind_of? String
@@ -80,29 +71,72 @@ module Reliquary
         end
       end
 
+      # @!method query_params
+      # Return the data structure describing the parameters for modifying a
+      #   particular API method's queries
+      # @param [Symbol] method_name API method
+      # @return [Hash] immutable hash of query params for the API method
+      # @class
+      def self.method_params(method_name)
+        begin
+          self::METHOD_PARAMS.fetch(method_name.to_sym).freeze
+
+        rescue KeyError => e
+          raise "'#{method_name}' does not look like an API method implemented by #{self}: #{e.message}"
+
+        rescue NameError => e
+          raise "#{self} does not appear to have implemented query params: #{e.message}"
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
       protected
 
-      def filter_option(params)
+      # @!method build_request_params
+      # API requests optionally take parameters that modify their behavior;
+      #   calling this method builds up a hash of the parameters that will be
+      #   passed to the request.  Essentially, it translates Ruby parameters
+      #   into the literal strings that will be appended to the HTTP request.
+      # @param [Hash] params Parameters for this method
+      # @option params [Hash] :request_params Accumulated API request parameters
+      # @option params [Symbol] :filter_param
+      # @option params [Symbol] :filter_value
+      # @option params [Symbol] :api_method
+      def build_request_params(params)
 
         begin
-          query_params = params.fetch(:query_params)
-          filter_param = params.fetch(:filter_param)
-          filter_value = params.fetch(:filter_value)
+          # these are the parameters that will eventually be passed to the REST
+          # API request; expect these to accumulate over multiple invocations
+          # of this method.  You must return this hash, either modified or
+          # unmodified.
+          request_params = params.fetch(:request_params)
+
+          # this is a Symbol representing the type of modification that will be
+          # made to the API request; it's a lookup key
+          method_param = params.fetch(:method_param)
+
+          # this is a String representing the parameter that will be passed to
+          # the API request modification (_e.g._ if the modification is "filter
+          # by language type", this value specifies the language type)
+          param_value = params.fetch(:param_value)
+
+          # this is a Symbol representing the REST API method that will be queried
           api_method = params.fetch(:api_method)
-          filter_options = params.fetch(:filter_options, self.filter_options)
 
-          if filter_value.nil?
-            query_params
+          method_params = self.class.method_params(api_method.to_sym).fetch(method_param)
+
+          if param_value.nil?
+            request_params
           else
-            filter_opts = filter_options.fetch(api_method.to_sym).fetch(filter_param.to_sym)
+            param_key = method_params.fetch(:key)
 
-            filter_key = filter_opts.fetch(:key)
+            param_transform = method_params.fetch(:transform, lambda {|x| x.to_s})
 
-            filter_transform = filter_opts.fetch(:transform, lambda {|x| x.to_s})
+            request_params.store(param_key.to_s, param_transform.call(param_value))
 
-            query_params.store(filter_key.to_s, filter_transform.call(filter_value))
-
-            query_params
+            request_params
           end
 
         rescue KeyError => e
