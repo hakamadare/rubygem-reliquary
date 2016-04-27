@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "reliquary"
   spec.version       = Reliquary::VERSION
   spec.authors       = ["Steve Huff"]
-  spec.email         = ["huff@vecna.org"]
+  spec.email         = ["shuff@vecna.org"]
 
   spec.summary       = %q{Client for New Relic API v2.}
   spec.description   = %q{The official New Relic Ruby gem only supports API v1.}
