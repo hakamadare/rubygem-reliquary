@@ -12,6 +12,8 @@ module Reliquary
 
     HTTP_METHODS = ['get','put','post','patch','delete','head']
 
+    API_BASE = 'https://api.newrelic.com/v2/'
+
     # @!attribute [r] api_key
     #   @return [String] a [New Relic REST API](https://rpm.newrelic.com/api/explore) key
     attr_reader :api_key
@@ -20,18 +22,18 @@ module Reliquary
     #   @return [URI] the base URI on which additional REST calls will be built
     attr_reader :api_base
 
-    # @!method initialize(api_key = get_api_key_from_env)
+    # @!method initialize(api_key = get_api_key_from_env, api_base = API_V2_BASE)
     #   Constructor method
     #   @param api_key [String] (see api_key)
     #   @return [Reliquary::Client] the initialized client
     #
-    def initialize(api_key = nil)
+    def initialize(api_key = nil, api_base = API_BASE)
       begin
         # get API key from env if not provided
         api_key = get_api_key_from_env if api_key.nil?
 
         @api_key = validate_api_key(api_key)
-        @api_base = build_api_base('https://api.newrelic.com/v2/')
+        @api_base = build_api_base(api_base)
 
       rescue NoMethodError => e
         false
