@@ -68,7 +68,7 @@ For some reason the [API Explorer](https://rpm.newrelic.com/api/explore) does no
 
 Each section of the API is implemented as a class under the `Reliquary::API` namespace.  Each of these classes exposes methods corresponding to the API methods described by the API Explorer.  When methods take parameters (required or optional), pass them in as a typical params hash.
 
-Access to the API requires an [API key](https://docs.newrelic.com/docs/apis/rest-api-v2/requirements/api-keys).  Reliquary reads your API key at runtime from the `NEWRELIC_API_KEY` environment variable.  If you really want to provide your API key via some other method, or change the API key while the program is running, then you'll need to create your own instance of `Reliquary::Client` with a different API key and then pass it in when initializing instances of the API section classes.
+Access to the API requires an [API key](https://docs.newrelic.com/docs/apis/rest-api-v2/requirements/api-keys).  Reliquary reads your API key at runtime from the `NEW_RELIC_API_KEY` environment variable (`NEWRELIC_API_KEY` is also valid).  If you really want to provide your API key via some other method, or change the API key while the program is running, then you'll need to create your own instance of `Reliquary::Client` with a different API key and then pass it in when initializing instances of the API section classes.
 
 ## Development
 

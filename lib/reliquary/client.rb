@@ -20,13 +20,16 @@ module Reliquary
     #   @return [URI] the base URI on which additional REST calls will be built
     attr_reader :api_base
 
-    # @!method initialize(api_key = ENV['NEWRELIC_API_KEY'])
+    # @!method initialize(api_key = get_api_key_from_env)
     #   Constructor method
     #   @param api_key [String] (see api_key)
     #   @return [Reliquary::Client] the initialized client
     #
-    def initialize(api_key = ENV['NEWRELIC_API_KEY'])
+    def initialize(api_key = nil)
       begin
+        # get API key from env if not provided
+        api_key = get_api_key_from_env if api_key.nil?
+
         @api_key = validate_api_key(api_key)
         @api_base = build_api_base('https://api.newrelic.com/v2/')
 
@@ -106,6 +109,18 @@ module Reliquary
     def auth_header(api_key = self.api_key)
       begin
         {:x_api_key => api_key}
+
+      rescue StandardError => e
+        raise e
+      end
+    end
+
+    def get_api_key_from_env(env = ENV)
+      begin
+        env.fetch('NEW_RELIC_API_KEY', env.fetch('NEWRELIC_API_KEY', nil))
+
+      rescue NoMethodError => e
+        raise "that doesn't look like a valid environment: #{e.message}"
 
       rescue StandardError => e
         raise e
