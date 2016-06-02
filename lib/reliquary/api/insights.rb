@@ -7,11 +7,16 @@ module Reliquary
   module API
     class Insights < Reliquary::API::Base
 
-      # URI fragment for Applications API endpoint
-      URI_FRAGMENT = "accounts/#{account_id}/query?"
+      # URI base for Insights API
+      API_BASE = 'https://insights-api.newrelic.com/v1'
 
-      # URI method for Applications API endpoint
+      # URI method for Insights API endpoint
       URI_METHOD = :get
+
+      # Environment variables which may store our API query key
+      VALID_ENV_KEYS = [
+        'NEW_RELIC_QUERY_KEY',
+      ]
 
       # How to parameterize queries against API endpoint
       # These are for parameters to be added to the query; some endpoints
@@ -30,8 +35,29 @@ module Reliquary
         :show           => {},
       }
 
-      # @!method initialize
-      # Run parent method with different params
+      # @!method initialize(params = {})
+      # Constructor method for Insights API component
+      # @param [Hash] params parameters for component
+      # @option params [String] :uri_method (see uri_method)
+      def initialize(params = {})
+        begin
+          client = Reliquary::Client.new(nil, API_BASE, VALID_ENV_KEYS)
+          params[:client] = client
+
+          account_id = client.account_id
+
+          params[:uri_fragment] = "accounts/#{account_id}/query?"
+
+          super(params)
+
+        rescue KeyError => e
+          raise RuntimeError.new("missing parameter: #{e.message}")
+
+        rescue StandardError => e
+          raise e
+        end
+      end
+
 
       # @!method list
       # List key transactions, optionally filtering by name or ID

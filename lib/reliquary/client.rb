@@ -14,26 +14,45 @@ module Reliquary
 
     API_BASE = 'https://api.newrelic.com/v2/'
 
+    VALID_ENV_KEYS = [
+      'NEW_RELIC_API_KEY',
+      'NEWRELIC_API_KEY',
+    ]
+
+    VALID_ENV_ACCOUNT_IDS = [
+      'NEW_RELIC_ACCOUNT_ID',
+    ]
+
     # @!attribute [r] api_key
     #   @return [String] a [New Relic REST API](https://rpm.newrelic.com/api/explore) key
     attr_reader :api_key
+
+    # @!attribute [r] account_id
+    #   @return [String] a New Relic account ID
+    attr_reader :account_id
 
     # @!attribute [r] api_base
     #   @return [URI] the base URI on which additional REST calls will be built
     attr_reader :api_base
 
-    # @!method initialize(api_key = get_api_key_from_env, api_base = API_V2_BASE)
+    # @!method initialize(api_key = nil, account_id = nil, api_base = API_BASE, valid_env_keys = VALID_ENV_KEYS)
     #   Constructor method
     #   @param api_key [String] (see api_key)
     #   @return [Reliquary::Client] the initialized client
     #
-    def initialize(api_key = nil, api_base = API_BASE)
+    def initialize(api_key = nil, api_base = API_BASE, valid_env_keys = VALID_ENV_KEYS, valid_env_account_ids = VALID_ENV_ACCOUNT_IDS)
       begin
+        @api_base = build_api_base(api_base)
+
         # get API key from env if not provided
-        api_key = get_api_key_from_env if api_key.nil?
+        api_key = get_value_from_env(valid_env_keys) if api_key.nil?
 
         @api_key = validate_api_key(api_key)
-        @api_base = build_api_base(api_base)
+
+        # get account ID from env
+        account_id = get_value_from_env(valid_account_ids)
+
+        @account_id = validate_account_id(account_id)
 
       rescue NoMethodError => e
         false
@@ -108,21 +127,40 @@ module Reliquary
       end
     end
 
-    def auth_header(api_key = self.api_key)
+    def validate_account_id(account_id)
       begin
-        {:x_api_key => api_key}
+        if /^[\d]+$/ =~ account_id
+          account_id
+        else
+          raise "'#{account_id}' does not look like a valid New Relic REST account id"
+        end
 
       rescue StandardError => e
         raise e
       end
     end
 
-    def get_api_key_from_env(env = ENV)
+    def auth_header(api_key = self.api_key, header_name = :x_api_key)
       begin
-        env.fetch('NEW_RELIC_API_KEY', env.fetch('NEWRELIC_API_KEY', nil))
+        {header_name => api_key}
+
+      rescue StandardError => e
+        raise e
+      end
+    end
+
+    def get_value_from_env(env_vars = VALID_ENV_KEYS, env = ENV)
+      begin
+        # iterate over env vars, find the first one that is defined
+        # reverse the array of env vars because i want the earliest env var to
+        # win if multiple vars are defined in the env
+        env_vars.reverse.reduce do |value, env_var|
+          env_value = env.fetch(env_var, nil)
+          env_value.nil? ? value : env_value
+        end
 
       rescue NoMethodError => e
-        raise "that doesn't look like a valid environment: #{e.message}"
+        raise "bogus input: #{e.message}"
 
       rescue StandardError => e
         raise e
