@@ -42,7 +42,7 @@ module Reliquary
     #
     def initialize(api_key = nil, api_base = API_BASE, valid_env_keys = VALID_ENV_KEYS, valid_env_account_ids = VALID_ENV_ACCOUNT_IDS)
       begin
-        @api_base = build_api_base(api_base)
+        puts "valid_env_keys: #{valid_env_keys.inspect}"
 
         # get API key from env if not provided
         api_key = get_value_from_env(valid_env_keys) if api_key.nil?
@@ -53,6 +53,8 @@ module Reliquary
         account_id = get_value_from_env(valid_account_ids)
 
         @account_id = validate_account_id(account_id)
+
+        @api_base = build_api_base(api_base)
 
       rescue NoMethodError => e
         false
@@ -118,8 +120,10 @@ module Reliquary
       begin
         if /^[\h]{47}$/ =~ api_key
           api_key
+        elsif /^[\h]{33}$/ =~ api_key
+          api_key
         else
-          raise "'#{api_key}' does not look like a valid New Relic REST API key"
+          raise "'#{api_key}' does not look like a valid New Relic REST API key or a valid New Relic Insights API Query key"
         end
 
       rescue StandardError => e
@@ -155,7 +159,9 @@ module Reliquary
         # reverse the array of env vars because i want the earliest env var to
         # win if multiple vars are defined in the env
         env_vars.reverse.reduce do |value, env_var|
+          puts "env_var: #{env_var}"
           env_value = env.fetch(env_var, nil)
+          puts "env_value: #{env_value.to_s}"
           env_value.nil? ? value : env_value
         end
 
