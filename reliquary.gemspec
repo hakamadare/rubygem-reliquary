@@ -18,4 +18,17 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "chronic", "~> 0.10"
+  spec.add_dependency "multi_json", "~> 1.11"
+  spec.add_dependency "oj", "~> 3.3"
+  spec.add_dependency "rest-client", "~> 2.0"
+
+  spec.add_development_dependency "awesome_print"
+  spec.add_development_dependency "bond", "~> 0.5"
+  spec.add_development_dependency "bundler"
+  spec.add_development_dependency "dotenv", "~> 2"
+  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "yard", "~> 0.8"
 end
