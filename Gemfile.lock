@@ -57,7 +57,7 @@ GEM
     method_source (0.8.2)
     methodfinder (2.0.0)
     mime-types (2.99.1)
-    multi_json (1.11.3)
+    multi_json (1.13.1)
     netrc (0.11.0)
     oj (2.15.0)
     ori (0.1.0)
