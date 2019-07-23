@@ -20,7 +20,7 @@ GEM
     diff-lcs (1.2.5)
     domain_name (0.5.20160310)
       unf (>= 0.0.5, < 1.0.0)
-    dotenv (2.1.1)
+    dotenv (2.7.4)
     every_day_irb (2.0.0)
       cd (~> 1.0)
     fancy_irb (1.0.2)
