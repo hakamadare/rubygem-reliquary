@@ -63,7 +63,7 @@ GEM
     ori (0.1.0)
     os (0.9.6)
     paint (1.0.1)
-    rake (10.5.0)
+    rake (12.3.3)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
@@ -107,10 +107,10 @@ DEPENDENCIES
   irbtools
   multi_json (~> 1.11)
   oj (~> 2.15)
-  rake (~> 10.0)
+  rake (~> 12.3, >= 12.3.3)
   rest-client (~> 1.8)
   rspec (~> 3.0)
   yard (~> 0.9, >= 0.9.11)
 
 BUNDLED WITH
-   1.16.1
+   1.17.3
