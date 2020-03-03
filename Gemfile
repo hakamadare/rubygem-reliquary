@@ -15,7 +15,7 @@ group :development,:test do
   gem "bundler", "~> 1.11"
   gem "dotenv", "~> 2"
   gem "irbtools", require: "irbtools/binding"
-  gem "rake", "~> 10.0"
+  gem "rake", "~> 13.0"
   gem "rspec", "~> 3.0"
   gem "yard", "~> 0.9", ">= 0.9.11"
 end
