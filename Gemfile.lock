@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     awesome_print (1.6.1)
+    bigdecimal (4.1.2)
     binding.repl (3.0.0)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
@@ -59,9 +60,12 @@ GEM
     mime-types (2.99.1)
     multi_json (1.11.3)
     netrc (0.11.0)
-    oj (2.15.0)
+    oj (3.17.3)
+      bigdecimal (>= 3.0)
+      ostruct (>= 0.2)
     ori (0.1.0)
     os (0.9.6)
+    ostruct (0.6.3)
     paint (1.0.1)
     rake (10.5.0)
     rest-client (1.8.0)
@@ -106,7 +110,7 @@ DEPENDENCIES
   dotenv (~> 2)
   irbtools
   multi_json (~> 1.11)
-  oj (~> 2.15)
+  oj (~> 3.17)
   rake (~> 10.0)
   rest-client (~> 1.8)
   rspec (~> 3.0)
