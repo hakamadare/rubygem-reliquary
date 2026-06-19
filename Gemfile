@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 group :production do
   gem "chronic", "~> 0.10"
   gem "multi_json", "~> 1.11"
-  gem "oj", "~> 2.15"
+  gem "oj", "~> 3.17"
   gem "rest-client", "~> 1.8"
 end
 
